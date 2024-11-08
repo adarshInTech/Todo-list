@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: sans-serif;
+      }
+
+      .container h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 3rem;
+        font-weight: bold;
+        background-image: linear-gradient(to right, #ff6600, #ffd700, #ff6600);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientAnimation 10s ease infinite;
+      }
+
+      body {
+        background-color: black;
+        padding: 50px;
+      }
+
+      .container {
+        padding: 20px;
+        margin: 50px auto;
+
+        background-color: #789dbc;
+        border-radius: 5px;
+        border: none;
+        box-shadow: #789dbc 0px 0px 10px;
+      }
+
+      .input-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #ff6600;
+        padding: 20px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        gap: 30px;
+      }
+
+      .input-container input {
+        border: none;
+        padding: 10px 20px;
+        font-size: 15px;
+        color: #ff6600;
+        border-radius: 5px;
+        outline: none;
+        background-color: rgb(34, 33, 33);
+      }
+
+      .input-container button,
+      button {
+        border: none;
+        padding: 10px 20px;
+        font-size: 15px;
+        border-radius: 5px;
+        color: #ff6600;
+        background-color: rgb(34, 33, 33);
+        cursor: pointer;
+      }
+
+      .list-items li.completed {
+        text-decoration: line-through;
+      }
+
+      .list-items li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #ff6600;
+        cursor: pointer;
+        list-style: none;
+        padding: 10px 20px;
+        font-size: larger;
+        font-weight: bold;
+      }
+
+      /* Media Queries */
+      @media (max-width: 768px) {
+        body {
+          padding: 20px;
+        }
+
+        .container {
+          margin: 20px auto;
+        }
+
+        .input-container {
+          flex-direction: column;
+          padding: 10px;
+          gap: 10px;
+        }
+
+        .input-container input,
+        .input-container button {
+          width: 100%;
+          font-size: 14px;
+        }
+
+        .list-items li {
+          flex-direction: column;
+          align-items: start;
+          font-size: 16px;
+          padding: 12px;
+          word-break: break-all;
+        }
+
+        .list-items li > div {
+          width: 100%;
+          justify-content: space-between;
+          margin-bottom: 8px;
+        }
+
+        .list-items li button {
+          font-size: 12px;
+          padding: 6px 10px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 10px;
+        }
+
+        h1 {
+          text-align: center;
+        }
+
+        .input-container {
+          margin: 10px;
+        }
+
+        .list-items li {
+          font-size: 14px;
+          padding: 10px;
+        }
+
+        .list-items li button {
+          font-size: 10px;
+          padding: 10px;
+        }
+
+        .list-items li span {
+          margin-bottom: 15px;
+        }
+
+        .list-items li {
+          border-radius: 5px;
+          margin: 10px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Todo List</h1>
+      <div class="input-container">
+        <input type="text" id="input" />
+        <button class="input-button">Button</button>
+      </div>
+      <ul class="list-items"></ul>
+    </div>
+    <script>
+      const input = document.getElementById('input');
+      const inputButton = document.querySelector('.input-button');
+      const listItems = document.querySelector('.list-items');
+
+      let items = JSON.parse(localStorage.getItem('data')) || [];
+      items.forEach((task) => {
+        renderTasks(task);
+      });
+
+      function handleInput() {
+        const inputValue = input.value.trim();
+
+        if (inputValue === '') return;
+
+        const generatedItems = {
+          id: Date.now(),
+          text: inputValue,
+          completed: false,
+        };
+
+        items.push(generatedItems);
+        console.log(generatedItems);
+
+        saveTasks();
+        renderTasks(generatedItems);
+        input.value = '';
+      }
+
+      inputButton.addEventListener('click', handleInput);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          handleInput();
+        }
+      });
+
+      function saveTasks() {
+        localStorage.setItem('data', JSON.stringify(items));
+      }
+
+      function renderTasks(genItems) {
+        const li = document.createElement('li');
+        li.setAttribute('data-id', genItems.id);
+        li.classList.add('completed');
+        li.innerHTML = `<span>${genItems.text}</span>
+ <button>delete</button>`;
+        li.addEventListener('click', (e) => {
+          if (e.target.tagname === 'BUTTON') return;
+          genItems.completed = !genItems.completed;
+          li.classList.toggle('completed');
+          saveTasks();
+        });
+
+        li.querySelector('button').addEventListener('click', (e) => {
+          e.stopPropagation();
+          items.filter((t) => t.id !== genItems.id);
+          li.remove();
+          saveTasks();
+        });
+
+        listItems.appendChild(li);
+      }
+    </script>
+  </body>
+</html>
